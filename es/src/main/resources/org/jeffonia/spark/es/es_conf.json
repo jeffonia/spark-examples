@@ -1,0 +1,10 @@
+[
+  {
+    "client.transport.sniff": "true",
+    "cluster.name": "test-cluster",
+    "ip": "10.100.157.99",
+    "port": "9700",
+    "": "",
+    "": ""
+  }
+]
