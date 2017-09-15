@@ -9,12 +9,16 @@
         <module name="common" />
         <module name="core" />
         <module name="es" />
+        <module name="hbase" />
+        <module name="jdbc" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="common" target="1.8" />
       <module name="core" target="1.8" />
       <module name="es" target="1.8" />
+      <module name="hbase" target="1.8" />
+      <module name="jdbc" target="1.8" />
       <module name="spark-examples" target="1.5" />
     </bytecodeTargetLevel>
   </component>

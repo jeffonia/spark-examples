@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://maven.apache.org/POM/4.0.0"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -11,13 +12,15 @@
         <module>es</module>
         <module>common</module>
         <module>core</module>
+        <module>hbase</module>
+        <module>jdbc</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <scala.version>2.11.7</scala.version>
+        <scala.version>2.11.8</scala.version>
         <scala.binary.version>2.11</scala.binary.version>
         <maven.version>3.3.9</maven.version>
         <spark.binary.version>2.2.0</spark.binary.version>
@@ -27,6 +30,9 @@
         <maven.compiler.version>3.0</maven.compiler.version>
         <encoding>UTF-8</encoding>
         <elasticsearch.version>2.3.3</elasticsearch.version>
+        <hbase.version>0.98.6</hbase.version>
+        <hive.version>1.1.0</hive.version>
+        <slf4j.version>1.7.16</slf4j.version>
         <guava.version>19.0</guava.version>
         <gson.version>2.6</gson.version>
     </properties>
@@ -73,6 +79,25 @@
                 <version>${elasticsearch.version}</version>
             </dependency>
 
+            <!-- hbase -->
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-client</artifactId>
+                <version>${hbase.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-server</artifactId>
+                <version>${hbase.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hive</groupId>
+                <artifactId>hive-jdbc</artifactId>
+                <version>${hive.version}</version>
+            </dependency>
+
+            <!-- google tools -->
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
@@ -83,6 +108,34 @@
                 <artifactId>gson</artifactId>
                 <version>${gson.version}</version>
             </dependency>
+
+            <!-- log -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jul-to-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api-scala_2.11</artifactId>
+                <version>2.7</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -147,6 +200,28 @@
                         <outputFile>${basedir}/target/scalastyle-output.xml</outputFile>
                         <inputEncoding>${project.build.sourceEncoding}</inputEncoding>
                         <outputEncoding>${project.reporting.outputEncoding}</outputEncoding>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>2.17</version>
+                    <configuration>
+                        <failOnViolation>false</failOnViolation>
+                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                        <failOnViolation>false</failOnViolation>
+                        <sourceDirectories>${basedir}/src/main/java,${basedir}/src/main/scala
+                        </sourceDirectories>
+                        <testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
+                        <configLocation>dev/checkstyle.xml</configLocation>
+                        <outputFile>${basedir}/target/checkstyle-output.xml</outputFile>
                     </configuration>
                     <executions>
                         <execution>

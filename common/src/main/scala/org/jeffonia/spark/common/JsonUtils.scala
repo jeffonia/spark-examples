@@ -1,3 +1,9 @@
+
+/*
+ * Copyright (c) 2017.
+ * Some examples about spark, feel free for share it.
+ */
+
 package org.jeffonia.spark.common
 
 import java.io.File
@@ -8,8 +14,8 @@ import com.google.gson._
 import com.google.gson.stream.JsonReader
 
 /**
-  * Created by gjf11847 on 2017/8/24.
-  */
+ * Created by gjf11847 on 2017/8/24.
+ */
 object JsonUtils {
 
   val gSon: Gson = new Gson()
@@ -22,8 +28,7 @@ object JsonUtils {
       case _: JsonObject => result.getAsJsonObject
       case _: JsonArray => result.getAsJsonArray
       case _: JsonPrimitive => result.getAsJsonPrimitive
-      case _: JsonNull => result.getAsJsonNull
-      case _ =>
+      case _: JsonNull | _ => result.getAsJsonNull
     }
 
   }

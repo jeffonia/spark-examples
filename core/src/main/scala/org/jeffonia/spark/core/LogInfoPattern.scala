@@ -1,12 +1,16 @@
-package org.jeffonia.spark
+/*
+ * Feel free to share it
+ */
+package org.jeffonia.spark.core
 
 import scala.collection.mutable
 import scala.util.matching.UnanchoredRegex
 
 /**
-  * Created by gjf11847 on 2017/9/1.
-  */
-class LogInfoPattern(patterns: mutable.ListBuffer[String], fields: mutable.ListBuffer[String]) extends Serializable {
+ * Created by gjf11847 on 2017/9/1.
+ */
+class LogInfoPattern(patterns: mutable.ListBuffer[String], fields: mutable.ListBuffer[String])
+  extends Serializable {
 
   def getRegex: UnanchoredRegex = {
     patterns.mkString.r.unanchored
@@ -19,10 +23,12 @@ class LogInfoPattern(patterns: mutable.ListBuffer[String], fields: mutable.ListB
   def getFields: Array[String] = fields.toArray
 }
 
-//case class LogInfo(fields: mutable.ListBuffer[String])
+// case class LogInfo(fields: mutable.ListBuffer[String])
 case class LogInfo(fields: String*)
 
 object LogInfoPattern {
+
+  def builder(): PatterBuilder = new PatterBuilder
 
   class PatterBuilder {
     lazy val patterns: mutable.ListBuffer[String] = mutable.ListBuffer[String]()
@@ -52,7 +58,5 @@ object LogInfoPattern {
       new LogInfoPattern(patterns, fields)
     }
   }
-
-  def builder(): PatterBuilder = new PatterBuilder
 
 }

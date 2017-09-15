@@ -1,3 +1,6 @@
+/*
+ * Feel free to share it
+ */
 package org.jeffonia.spark.es
 
 import java.net.InetAddress
@@ -11,16 +14,16 @@ import org.elasticsearch.common.unit.TimeValue
 import org.elasticsearch.common.xcontent.XContentFactory
 import org.elasticsearch.index.query.TermQueryBuilder
 import org.elasticsearch.search.sort.{SortOrder, SortParseElement}
-import org.jeffonia.spark.common.JsonUtils
+import org.jeffonia.spark.common.{JsonUtils, Logging}
 
 /**
-  * Created by gjf11847 on 2017/8/24.
-  */
+ * Created by gjf11847 on 2017/8/24.
+ */
 class EsClient {
 
 }
 
-object EsClient {
+object EsClient extends Logging {
   lazy val esConf: JsonObject = JsonUtils.load("es_conf.json").getAsJsonObject
 
   lazy val esTransport: TransportClient = {
@@ -29,12 +32,14 @@ object EsClient {
       .put("cluster.name", esConf.get("cluster.name"))
       .build
     val client = TransportClient.builder().settings(settings).build
-    client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.100.157.99"), 9700))
-    println("*****************************" + client)
+    client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.100.157" +
+      ".99"), 9700))
+    logInfo("*****************************" + client)
     client
   }
 
-  def transportClient(host: String, cluster: String, port: Int, transportClient: TransportClient): TransportClient = {
+  def transportClient(host: String, cluster: String, port: Int, transportClient: TransportClient)
+  : TransportClient = {
     def getInstance = {
       val settings = Settings.settingsBuilder()
         .put("client.transport.sniff", "true")
@@ -43,14 +48,15 @@ object EsClient {
       TransportClient.builder().settings(settings).build
     }
 
-    println("*****************************" + transportClient)
+    logInfo("*****************************" + transportClient)
 
     val client: TransportClient = if (null != transportClient) transportClient else getInstance
     client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port))
   }
 
   //  val getAllList: Unit = {
-  //    val encode = DatatypeConverter.printBase64Binary("sy16420:clustermonitor".getBytes(Charsets.UTF_8))
+  //    val encode = DatatypeConverter.printBase64Binary("sy16420:clustermonitor".getBytes
+  // (Charsets.UTF_8))
   //    val response: SearchResponse = esTransport.prepareSearch("premier")
   //      .putHeader("searchguard_transport_creds", encode)
   //      .setTypes("loginfo")
@@ -65,7 +71,8 @@ object EsClient {
   //    for (searchHit <- hits.getHits) println(searchHit.getSourceAsString)
   //  }
 
-  def readFromEs(esTransport: TransportClient, json: String, indices: String, types: String): Unit = {
+  def readFromEs(esTransport: TransportClient, json: String, indices: String, types: String):
+  Unit = {
     val searchResponse = esTransport.prepareSearch(indices)
       .setTypes(types)
       .setSource(json)
@@ -82,28 +89,30 @@ object EsClient {
   }
 
   /**
-    *
-    * @param indices indices.
-    * @param query   query of es.
-    * @tparam T One of String and TermQueryBuilder type.
-    */
+   *
+   * @param indices indices.
+   * @param query   query of es.
+   * @tparam T One of String and TermQueryBuilder type.
+   */
   def readFromEs[T](indices: String, query: T): Unit = {
     val searchRequestBuilder = esTransport.prepareSearch(indices)
       .addSort(SortParseElement.DOC_FIELD_NAME, SortOrder.ASC)
       .setScroll(TimeValue.timeValueMillis(ConstEs.TIME_SCROLL_ALIVE_MS))
-      .setSize(ConstEs.SIZE_OF_RESULT) //100 hits per shard will be returned for each scroll
+      .setSize(ConstEs.SIZE_OF_RESULT) // 100 hits per shard will be returned for each scroll
 
     query match {
-      case _: String => searchRequestBuilder.setSource(new JSONObject(query.asInstanceOf[String]).toString)
-      case _: TermQueryBuilder => searchRequestBuilder.setQuery(query.asInstanceOf[TermQueryBuilder])
+      case _: String => searchRequestBuilder.setSource(
+        JsonUtils.jsonParser.parse(query.asInstanceOf[String]).getAsString)
+      case _: TermQueryBuilder => searchRequestBuilder.setQuery(query
+        .asInstanceOf[TermQueryBuilder])
       case _ =>
     }
 
     var scrollResp = searchRequestBuilder.execute.actionGet
-    //Scroll until no hits are returned
+    // Scroll until no hits are returned
     while (scrollResp.getHits.getHits.length > 0) {
       for (searchHit <- scrollResp.getHits.getHits) {
-        println(searchHit)
+        logInfo(searchHit.toString)
       }
       scrollResp = esTransport.prepareSearchScroll(scrollResp.getScrollId)
         .setScroll(TimeValue.timeValueMillis(ConstEs.TIME_SCROLL_ALIVE_MS))
